@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Item Database</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 2px solid #4cc9f0;
+            box-shadow: 0 0 20px rgba(76, 201, 240, 0.3);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #4cc9f0;
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.7);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a9e4f9;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .category-filter {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #4361ee;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #4361ee;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        }
+
+        .search-box {
+            display: flex;
+            max-width: 400px;
+            margin: 0 auto 30px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 25px 0 0 25px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            border: 1px solid #4361ee;
+            border-right: none;
+        }
+
+        .search-box button {
+            padding: 12px 25px;
+            background: #4361ee;
+            color: white;
+            border: none;
+            border-radius: 0 25px 25px 0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .search-box button:hover {
+            background: #3a56d4;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .item-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(76, 201, 240, 0.2);
+        }
+
+        .item-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            border-color: #4cc9f0;
+        }
+
+        .item-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .item-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4cc9f0;
+        }
+
+        .item-category {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .pokeball { background: rgba(255, 59, 59, 0.2); color: #ff7b7b; border: 1px solid #ff7b7b; }
+        .medicine { background: rgba(72, 187, 120, 0.2); color: #48bb78; border: 1px solid #48bb78; }
+        .battle { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+        .key { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; border: 1px solid #8b5cf6; }
+        .evolution { background: rgba(236, 72, 153, 0.2); color: #ec4899; border: 1px solid #ec4899; }
+
+        .item-body {
+            padding: 20px;
+        }
+
+        .item-description {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            color: #ccc;
+        }
+
+        .item-price {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            color: #fbbf24;
+            margin-bottom: 15px;
+        }
+
+        .item-price i {
+            font-size: 1.2rem;
+        }
+
+        .item-effect {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #a9e4f9;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4cc9f0;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .total-items {
+            background: rgba(76, 201, 240, 0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #4cc9f0;
+        }
+
+        @media (max-width: 768px) {
+            .items-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-pokemon-ball"></i> Pokémon Item Database</h1>
+            <p class="subtitle">Koleksi lengkap barang-barang dari dunia Pokémon</p>
+        </header>
+
+        <div class="controls">
+            <div class="category-filter">
+                <button class="filter-btn active" data-category="all">Semua Barang</button>
+                <button class="filter-btn" data-category="pokeball">Poké Ball</button>
+                <button class="filter-btn" data-category="medicine">Obat</button>
+                <button class="filter-btn" data-category="battle">Pertempuran</button>
+                <button class="filter-btn" data-category="key">Item Kunci</button>
+                <button class="filter-btn" data-category="evolution">Evolusi</button>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Cari barang Pokémon (nama, kategori, efek)...">
+            <button id="searchBtn"><i class="fas fa-search"></i> Cari</button>
+        </div>
+
+        <div class="items-grid" id="itemsContainer">
+            <!-- Item akan dimuat disini oleh JavaScript -->
+        </div>
+
+        <footer>
+            <p>Pokémon Item Database &copy; 2023 - Data berdasarkan Pokémon Games</p>
+            <div class="total-items" id="totalItems">Memuat data...</div>
+        </footer>
+    </div>
+
+    <script>
+        // Data barang-barang Pokémon
+        const pokemonItems = [
+            {
+                id: 1,
+                name: "Poké Ball",
+                category: "pokeball",
+                description: "Sebuah alat untuk menangkap Pokémon liar.",
+                effect: "Tingkat tangkapan standar (1x).",
+                price: 200,
+                rarity: "Common",
+                generation: 1
+            },
+            {
+                id: 2,
+                name: "Great Ball",
+                category: "pokeball",
+                description: "Poké Ball dengan tingkat keberhasilan lebih tinggi dari Poké Ball.",
+                effect: "Tingkat tangkapan 1.5x lebih baik dari Poké Ball.",
+                price: 600,
+                rarity: "Uncommon",
+                generation: 1
+            },
+            {
+                id: 3,
+                name: "Ultra Ball",
+                category: "pokeball",
+                description: "Poké Ball dengan tingkat keberhasilan sangat tinggi.",
+                effect: "Tingkat tangkapan 2x lebih baik dari Poké Ball.",
+                price: 1200,
+                rarity: "Rare",
+                generation: 1
+            },
+            {
+                id: 4,
+                name: "Master Ball",
+                category: "pokeball",
+                description: "Poké Ball terbaik yang dapat menangkap Pokémon apa pun tanpa gagal.",
+                effect: "Tingkat tangkapan 255x (selalu berhasil).",
+                price: 0,
+                rarity: "Legendary",
+                generation: 1
+            },
+            {
+                id: 5,
+                name: "Potion",
+                category: "medicine",
+                description: "Mengembalikan 20 HP Pokémon.",
+                effect: "Memulihkan 20 HP.",
+                price: 200,
+                rarity: "Common",
+                generation: 1
+            },
+            {
+                id: 6,
+                name: "Super Potion",
+                category: "medicine",
+                description: "Mengembalikan 60 HP Pokémon.",
+                effect: "Memulihkan 60 HP.",
+                price: 700,
+                rarity: "Uncommon",
+                generation: 1
+            },
+            {
+                id: 7,
+                name: "Hyper Potion",
+                category: "medicine",
+                description: "Mengembalikan 120 HP Pokémon.",
+                effect: "Memulihkan 120 HP.",
+                price: 1500,
+                rarity: "Rare",
+                generation: 1
+            },
+            {
+                id: 8,
+                name: "Max Potion",
+                category: "medicine",
+                description: "Mengembalikan semua HP Pokémon.",
+                effect: "Memulihkan HP penuh.",
+                price: 2500,
+                rarity: "Epic",
+                generation: 1
+            },
+            {
+                id: 9,
+                name: "Revive",
+                category: "medicine",
+                description: "Menghidupkan kembali Pokémon yang pingsan dengan setengah HP.",
+                effect: "Menghidupkan Pokémon pingsan dengan 50% HP.",
+                price: 1500,
+                rarity: "Uncommon",
+                generation: 1
+            },
+            {
+                id: 10,
+                name: "Max Revive",
+                category: "medicine",
+                description: "Menghidupkan kembali Pokémon yang pingsan dengan HP penuh.",
+                effect: "Menghidupkan Pokémon pingsan dengan 100% HP.",
+                price: 4000,
+                rarity: "Rare",
+                generation: 1
+            },
+            {
+                id: 11,
+                name: "Elixir",
+                category: "medicine",
+                description: "Memulihkan 10 PP untuk semua gerakan Pokémon.",
+                effect: "Memulihkan 10 PP semua gerakan.",
+                price: 3000,
+                rarity: "Rare",
+                generation: 1
+            },
+            {
+                id: 12,
+                name: "Ether",
+                category: "medicine",
+                description: "Memulihkan 10 PP untuk satu gerakan Pokémon.",
+                effect: "Memulihkan 10 PP satu gerakan.",
+                price: 1200,
+                rarity: "Uncommon",
+                generation: 1
+            },
+            {
+                id: 13,
+                name: "Rare Candy",
+                category: "medicine",
+                description: "Meningkatkan level Pokémon sebanyak 1.",
+                effect: "Level naik 1.",
+                price: 10000,
+                rarity: "Epic",
+                generation: 1
+            },
+            {
+                id: 14,
+                name: "X Attack",
+                category: "battle",
+                description: "Meningkatkan stat Attack Pokémon selama pertempuran.",
+                effect: "Meningkatkan Attack selama pertempuran.",
+                price: 500,
+                rarity: "Uncommon",
+                generation: 1
+            },
+            {
+                id: 15,
+                name: "X Defense",
+                category: "battle",
+                description: "Meningkatkan stat Defense Pokémon selama pertempuran.",
+                effect: "Meningkatkan Defense selama pertempuran.",
+                price: 550,
+                rarity: "Uncommon",
+                generation: 1
+            },
+            {
+                id: 16,
+                name: "Dire Hit",
+                category: "battle",
+                description: "Meningkatkan peluang serangan kritis selama pertempuran.",
+                effect: "Tingkat kritis meningkat.",
+                price: 650,
+                rarity: "Rare",
+                generation: 1
+            },
+            {
+                id: 17,
+                name: "Guard Spec.",
+                category: "battle",
+                description: "Mencegah stat Pokémon diturunkan oleh lawan selama 5 putaran.",
+                effect: "Mencegah penurunan stat.",
+                price: 700,
+                rarity: "Rare",
+                generation: 1
+            },
+            {
+                id: 18,
+                name: "Bike",
+                category: "key",
+                description: "Sepeda lipat yang memungkinkan perjalanan lebih cepat.",
+                effect: "Berkendara dengan kecepatan tinggi.",
+                price: 0,
+                rarity: "Key",
+                generation: 1
+            },
+            {
+                id: 19,
+                name: "Old Rod",
+                category: "key",
+                description: "Pancingan sederhana untuk menangkap Pokémon air.",
+                effect: "Memancing Pokémon air dasar.",
+                price: 0,
+                rarity: "Key",
+                generation: 1
+            },
+            {
+                id: 20,
+                name: "Good Rod",
+                category: "key",
+                description: "Pancingan yang lebih baik untuk Pokémon air yang lebih kuat.",
+                effect: "Memancing Pokémon air yang lebih baik.",
+                price: 0,
+                rarity: "Key",
+                generation: 1
+            },
+            {
+                id: 21,
+                name: "Super Rod",
+                category: "key",
+                description: "Pancingan terbaik untuk Pokémon air terkuat.",
+                effect: "Memancing Pokémon air terkuat.",
+                price: 0,
+                rarity: "Key",
+                generation: 1
+            },
+            {
+                id: 22,
+                name: "Dome Fossil",
+                category: "key",
+                description: "Fosil dari Pokémon purba. Dapat dihidupkan kembali di lab.",
+                effect: "Dihidupkan menjadi Kabuto.",
+                price: 0,
+                rarity: "Fossil",
+                generation: 1
+            },
+            {
+                id: 23,
+                name: "Helix Fossil",
+                category: "key",
+                description: "Fosil dari Pokémon purba. Dapat dihidupkan kembali di lab.",
+                effect: "Dihidupkan menjadi Omanyte.",
+                price: 0,
+                rarity: "Fossil",
+                generation: 1
+            },
+            {
+                id: 24,
+                name: "Water Stone",
+                category: "evolution",
+                description: "Batu evolusi yang membuat beberapa jenis Pokémon berevolusi.",
+                effect: "Evolusi Pokémon air tertentu.",
+                price: 2100,
+                rarity: "Uncommon",
+                generation: 1
+            },
+            {
+                id: 25,
+                name: "Fire Stone",
+                category: "evolution",
+                description: "Batu evolusi yang membuat beberapa jenis Pokémon berevolusi.",
+                effect: "Evolusi Pokémon api tertentu.",
+                price: 2100,
+                rarity: "Uncommon",
+                generation: 1
+            },
+            {
+                id: 26,
+                name: "Thunder Stone",
+                category: "evolution",
+                description: "Batu evolusi yang membuat beberapa jenis Pokémon berevolusi.",
+                effect: "Evolusi Pokémon listrik tertentu.",
+                price: 2100,
+                rarity: "Uncommon",
+                generation: 1
+            },
+            {
+                id: 27,
+                name: "Leaf Stone",
+                category: "evolution",
+                description: "Batu evolusi yang membuat beberapa jenis Pokémon berevolusi.",
+                effect: "Evolusi Pokémon daun tertentu.",
+                price: 2100,
+                rarity: "Uncommon",
+                generation: 1
+            },
+            {
+                id: 28,
+                name: "Moon Stone",
+                category: "evolution",
+                description: "Batu evolusi yang membuat beberapa jenis Pokémon berevolusi.",
+                effect: "Evolusi Pokémon tertentu.",
+                price: 2100,
+                rarity: "Uncommon",
+                generation: 1
+            },
+            {
+                id: 29,
+                name: "Lucky Egg",
+                category: "battle",
+                description: "Item yang dipegang untuk mendapatkan EXP tambahan setelah pertempuran.",
+                effect: "EXP 1.5x setelah pertempuran.",
+                price: 0,
+                rarity: "Rare",
+                generation: 2
+            },
+            {
+                id: 30,
+                name: "Exp. Share",
+                category: "battle",
+                description: "Item yang dibagikan untuk memberikan EXP ke semua Pokémon dalam party.",
+                effect: "EXP dibagikan ke semua Pokémon.",
+                price: 0,
+                rarity: "Key",
+                generation: 1
+            }
+        ];
+
+        // Elemen DOM
+        const itemsContainer = document.getElementById('itemsContainer');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const totalItemsElement = document.getElementById('totalItems');
+
+        // Variabel state
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        // Fungsi untuk merender item
+        function renderItems(items) {
+            itemsContainer.innerHTML = '';
+            
+            if (items.length === 0) {
+                itemsContainer.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: rgba(0,0,0,0.2); border-radius: 15px;">
+                        <i class="fas fa-search" style="font-size: 3rem; color: #4cc9f0; margin-bottom: 20px;"></i>
+                        <h3 style="color: #4cc9f0;">Tidak ada barang yang ditemukan</h3>
+                        <p>Coba gunakan kata kunci lain atau pilih kategori berbeda</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            items.forEach(item => {
+                const itemCard = document.createElement('div');
+                itemCard.className = 'item-card';
+                
+                // Format harga
+                const priceDisplay = item.price === 0 ? "Tidak Dijual" : `${item.price.toLocaleString()} ₽`;
+                
+                itemCard.innerHTML = `
+                    <div class="item-header">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-category ${item.category}">${getCategoryName(item.category)}</div>
+                    </div>
+                    <div class="item-body">
+                        <p class="item-description">${item.description}</p>
+                        <div class="item-price">
+                            <i class="fas fa-coins"></i> ${priceDisplay}
+                        </div>
+                        <div class="item-effect">
+                            <strong>Efek:</strong> ${item.effect}
+                        </div>
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">${item.rarity}</div>
+                                <div class="stat-label">Kelangkaan</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">Gen ${item.generation}</div>
+                                <div class="stat-label">Generasi</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">#${item.id.toString().padStart(3, '0')}</div>
+                                <div class="stat-label">ID</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                itemsContainer.appendChild(itemCard);
+            });
+            
+            // Update total items
+            totalItemsElement.textContent = `Total Barang: ${items.length} dari ${pokemonItems.length}`;
+        }
+
+        // Fungsi untuk mendapatkan nama kategori yang lebih baik
+        function getCategoryName(category) {
+            const categoryNames = {
+                'pokeball': 'Poké Ball',
+                'medicine': 'Obat',
+                'battle': 'Pertempuran',
+                'key': 'Item Kunci',
+                'evolution': 'Evolusi'
+            };
+            return categoryNames[category] || category;
+        }
+
+        // Fungsi untuk memfilter item
+        function filterItems() {
+            let filteredItems = pokemonItems;
+            
+            // Filter berdasarkan kategori
+            if (currentFilter !== 'all') {
+                filteredItems = filteredItems.filter(item => item.category === currentFilter);
+            }
+            
+            // Filter berdasarkan pencarian
+            if (currentSearch) {
+                const searchLower = currentSearch.toLowerCase();
+                filteredItems = filteredItems.filter(item => 
+                    item.name.toLowerCase().includes(searchLower) ||
+                    item.category.toLowerCase().includes(searchLower) ||
+                    item.description.toLowerCase().includes(searchLower) ||
+                    item.effect.toLowerCase().includes(searchLower)
+                );
+            }
+            
+            return filteredItems;
+        }
+
+        // Fungsi untuk mengupdate tampilan
+        function updateDisplay() {
+            const filteredItems = filterItems();
+            renderItems(filteredItems);
+        }
+
+        // Event listener untuk filter
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Hapus kelas active dari semua tombol
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Tambah kelas active ke tombol yang diklik
+                button.classList.add('active');
+                
+                // Update filter saat ini
+                currentFilter = button.getAttribute('data-category');
+                
+                // Update tampilan
+                updateDisplay();
+            });
+        });
+
+        // Event listener untuk pencarian
+        searchBtn.addEventListener('click', () => {
+            currentSearch = searchInput.value.trim();
+            updateDisplay();
+        });
+
+        // Event listener untuk pencarian saat menekan Enter
+        searchInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                currentSearch = searchInput.value.trim();
+                updateDisplay();
+            }
+        });
+
+        // Inisialisasi dengan semua item
+        updateDisplay();
+    </script>
+</body>
+</html>
